@@ -25,7 +25,6 @@ PlasmoidItem {
     property int checkInterval: plasmoid.configuration.checkInterval || 60
     property bool notifyOnUpdates: plasmoid.configuration.notifyOnUpdates || true
     property bool checkOnStartup: plasmoid.configuration.checkOnStartup || true
-    property bool autoHideWhenEmpty: plasmoid.configuration.autoHideWhenEmpty || false
     property bool showBadge: plasmoid.configuration.showBadge !== undefined ? plasmoid.configuration.showBadge : true
     property bool playSound: plasmoid.configuration.playSound || false
 
@@ -143,13 +142,7 @@ PlasmoidItem {
     compactRepresentation: Item {
         id: compactRoot
 
-        // Hide by setting size to 0 when auto-hide is enabled and no updates
-        visible: !(autoHideWhenEmpty && updateCount === 0)
-
         Layout.minimumWidth: {
-            if (autoHideWhenEmpty && updateCount === 0) {
-                return 0
-            }
             var baseWidth = Kirigami.Units.iconSizes.smallMedium
             if (showBadge && updateCount > 0) {
                 // Add space for badge: estimated 2 digits + spacing
@@ -157,12 +150,7 @@ PlasmoidItem {
             }
             return baseWidth
         }
-        Layout.minimumHeight: {
-            if (autoHideWhenEmpty && updateCount === 0) {
-                return 0
-            }
-            return Kirigami.Units.iconSizes.smallMedium
-        }
+        Layout.minimumHeight: Kirigami.Units.iconSizes.smallMedium
 
         RowLayout {
             anchors.fill: parent

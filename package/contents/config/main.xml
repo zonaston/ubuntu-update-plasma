@@ -18,10 +18,6 @@
             <default>true</default>
             <label>Check for updates on startup</label>
         </entry>
-        <entry name="autoHideWhenEmpty" type="Bool">
-            <default>false</default>
-            <label>Auto-hide icon when no updates available</label>
-        </entry>
         <entry name="showBadge" type="Bool">
             <default>true</default>
             <label>Show update count badge on icon</label>

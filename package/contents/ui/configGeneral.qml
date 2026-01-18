@@ -9,7 +9,6 @@ Kirigami.FormLayout {
     property alias cfg_checkInterval: checkIntervalSpinBox.value
     property alias cfg_notifyOnUpdates: notifyCheckBox.checked
     property alias cfg_checkOnStartup: checkOnStartupCheckBox.checked
-    property alias cfg_autoHideWhenEmpty: autoHideCheckBox.checked
     property alias cfg_showBadge: showBadgeCheckBox.checked
     property alias cfg_playSound: playSoundCheckBox.checked
 
@@ -52,11 +51,6 @@ Kirigami.FormLayout {
         id: showBadgeCheckBox
         Kirigami.FormData.label: i18n("Display:")
         text: i18n("Show update count badge on icon")
-    }
-
-    QQC2.CheckBox {
-        id: autoHideCheckBox
-        text: i18n("Auto-hide icon when no updates available")
     }
 
     QQC2.CheckBox {

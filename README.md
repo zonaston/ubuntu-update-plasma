@@ -11,7 +11,6 @@ A KDE Plasma widget that monitors and displays available package updates for Ubu
 - List view of all available updates
 - One-click access to update manager (Discover or Software Properties)
 - Configurable check intervals (5 minutes to 24 hours)
-- Auto-hide icon when no updates available (optional)
 - Toggle badge visibility
 - No sudo/root privileges required for checking
 - Fully compatible with Plasma 6
@@ -72,7 +71,6 @@ Right-click on the widget and select "Configure" to access settings:
 - **Check Interval**: How often to check for updates (5 minutes to 24 hours)
 - **Check on Startup**: Automatically check for updates when the widget starts
 - **Show Notifications**: Display desktop notifications when updates are found
-- **Auto-hide when empty**: Hide the widget icon when no updates are available
 - **Show Badge**: Display update count beside the icon (can be disabled for minimal look)
 - **Play Sound**: Play a sound notification when new updates are detected
 
@@ -197,10 +195,10 @@ Created for the Ubuntu/KDE community.
 - **Plasma 6 Compatibility**: Full migration to Plasma 6 APIs
   - Replaced `PlasmaCore.DataSource` with `Plasma5Support.DataSource`
   - Replaced `PlasmaCore.IconItem` with `Kirigami.Icon`
+  - Replaced `PlasmaCore.Units` and `PlasmaCore.Theme` with `Kirigami` equivalents
   - Migrated from `Item` to `PlasmoidItem` root element
   - Fixed `compactRepresentation` and `fullRepresentation` for Plasma 6
 - **New Features**:
-  - Auto-hide icon when no updates available
   - Toggle badge visibility (show/hide update count)
   - Sound notifications for new updates
   - Better icon selection (update-high/update-none)
@@ -208,6 +206,7 @@ Created for the Ubuntu/KDE community.
   - Badge now appears beside icon instead of overlaid on top
   - Better theme color integration
   - Improved tooltip information
+  - Proper width calculation for badge to prevent icon overlap
 - **Code Cleanup**:
   - Removed nala support (provides no benefit for listing updates)
   - Simplified codebase and configuration options
