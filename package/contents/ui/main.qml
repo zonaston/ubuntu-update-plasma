@@ -17,11 +17,15 @@ PlasmoidItem {
     property string lastCheck: ""
     property string packageManager: "apt"
 
+    // Hide from panel when no updates and auto-hide is enabled
+    switchWidth: autoHideWhenEmpty && updateCount === 0 ? 0 : PlasmaCore.Units.iconSizes.small
+    switchHeight: autoHideWhenEmpty && updateCount === 0 ? 0 : PlasmaCore.Units.iconSizes.small
+
     Plasmoid.status: {
-        if (updateCount > 0) {
-            return PlasmaCore.Types.ActiveStatus
+        if (autoHideWhenEmpty && updateCount === 0) {
+            return PlasmaCore.Types.HiddenStatus
         }
-        return autoHideWhenEmpty ? PlasmaCore.Types.PassiveStatus : PlasmaCore.Types.ActiveStatus
+        return updateCount > 0 ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.PassiveStatus
     }
     Plasmoid.icon: updateCount > 0 ? "update-high" : "update-none"
     toolTipMainText: updateCount > 0 ? i18n("%1 updates available", updateCount) : i18n("System is up to date")
@@ -101,7 +105,9 @@ PlasmoidItem {
         updateList = []
 
         // Command to check for updates without requiring sudo
-        var cmd = "check-updates|LANG=C apt list --upgradable 2>/dev/null | grep -v 'Listing' | grep '/'  || true"
+        // Use nala or apt based on user preference and availability
+        var listCmd = packageManager === "nala" ? "nala list --upgradable" : "apt list --upgradable"
+        var cmd = "check-updates|LANG=C " + listCmd + " 2>/dev/null | grep -v 'Listing' | grep '/'  || true"
 
         executable.connectSource(cmd)
     }
@@ -171,22 +177,25 @@ PlasmoidItem {
     }
 
     compactRepresentation: Item {
-        Kirigami.Icon {
-            id: icon
+        RowLayout {
             anchors.fill: parent
-            source: updateCount > 0 ? "update-high" : "update-none"
-            active: mouseArea.containsMouse
+            spacing: PlasmaCore.Units.smallSpacing
+
+            Kirigami.Icon {
+                id: icon
+                Layout.fillHeight: true
+                Layout.preferredWidth: height
+                source: updateCount > 0 ? "update-high" : "update-none"
+                active: mouseArea.containsMouse
+            }
 
             PlasmaComponents3.Label {
                 visible: updateCount > 0 && showBadge
                 text: updateCount > 99 ? "99+" : updateCount
-                anchors.centerIn: parent
-                anchors.verticalCenterOffset: 4
                 font.bold: true
-                font.pixelSize: parent.height * 0.4
-                color: "white"
-                style: Text.Outline
-                styleColor: "black"
+                font.pixelSize: PlasmaCore.Theme.defaultFont.pixelSize * 1.2
+                color: PlasmaCore.Theme.textColor
+                Layout.alignment: Qt.AlignVCenter
             }
         }
 
