@@ -24,17 +24,23 @@ The widget appears in the system tray and shows:
 
 ## Installation
 
-### Method 1: From Repository (Recommended)
+### Fresh Installation
 
 1. Clone this repository:
 ```bash
+cd ~
 git clone https://github.com/zonaston/ubuntu-update-plasma.git
 cd ubuntu-update-plasma
 ```
 
 2. Install the widget:
 ```bash
-kpackagetool6 -i package
+kpackagetool6 -t Plasma/Applet -i package
+```
+
+3. Restart Plasma Shell to load the widget:
+```bash
+killall plasmashell ; kstart plasmashell
 ```
 
 4. Add the widget to your panel:
@@ -43,23 +49,38 @@ kpackagetool6 -i package
    - Search for "Ubuntu Updates Indicator"
    - Add it to your panel
 
-### Method 2: Install from Local Package
-```bash
-kpackagetool6 -t Plasma/Applet -i package
-```
-
 ### Updating the Widget
 
 If you already have the widget installed and want to update it:
+
 ```bash
+# Remove old installation
+rm -rf ~/.local/share/plasma/plasmoids/org.kde.plasma.ubuntu-updates
+
+# Clean up and re-clone
+cd ~
+rm -rf ubuntu-update-plasma
+git clone https://github.com/zonaston/ubuntu-update-plasma.git
 cd ubuntu-update-plasma
-git pull
-kpackagetool6 -u package
+
+# Install fresh
+kpackagetool6 -t Plasma/Applet -i package
+
+# Restart Plasma Shell
+killall plasmashell ; kstart plasmashell
 ```
+
+**Note:** After updating, you may need to re-add the widget to your panel.
 
 ## Uninstallation
 
 To remove the widget:
+```bash
+rm -rf ~/.local/share/plasma/plasmoids/org.kde.plasma.ubuntu-updates
+killall plasmashell ; kstart plasmashell
+```
+
+Or using kpackagetool6:
 ```bash
 kpackagetool6 -r org.kde.plasma.ubuntu-updates
 ```
@@ -154,11 +175,25 @@ package/
         └── configGeneral.qml  # Configuration UI
 ```
 
-### Testing
+### Testing Changes
 
-To test changes without installing:
+To test changes during development:
+
+1. **Using plasmoidviewer (for quick testing without installation):**
 ```bash
 plasmoidviewer -a package
+```
+
+2. **Testing in actual panel (recommended):**
+```bash
+# Remove old version
+rm -rf ~/.local/share/plasma/plasmoids/org.kde.plasma.ubuntu-updates
+
+# Reinstall
+kpackagetool6 -t Plasma/Applet -i package
+
+# Restart Plasma Shell to reload
+killall plasmashell ; kstart plasmashell
 ```
 
 ### Debug Output
@@ -168,7 +203,7 @@ To see debug messages:
 journalctl -f | grep plasma
 ```
 
-Or run from terminal:
+Or run plasmoidviewer with debug output:
 ```bash
 QT_LOGGING_RULES="*.debug=true" plasmoidviewer -a package
 ```
