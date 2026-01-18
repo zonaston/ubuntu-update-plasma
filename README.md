@@ -35,7 +35,7 @@ cd ubuntu-update-plasma
 kpackagetool6 -i package
 ```
 
-3. Add the widget to your panel:
+4. Add the widget to your panel:
    - Right-click on your panel
    - Select "Add Widgets"
    - Search for "Ubuntu Updates Indicator"
@@ -193,6 +193,13 @@ This project is licensed under the GNU General Public License v3.0 or later - se
 Created for the Ubuntu/KDE community.
 
 ## Changelog
+
+### Version 1.0.1
+- Updated for KDE Plasma 6 (Plasma 5 deprecated)
+- Modernized QML imports (removed version numbers)
+- Fixed metadata format for Plasma 6
+- Simplified installation instructions
+- Fixed installation path to use kpackagetool6 with -t flag
 
 ### Version 1.0.0
 - Initial release
