@@ -4,14 +4,17 @@ A KDE Plasma widget that monitors and displays available package updates for Ubu
 
 ## Features
 
-- System tray icon with update count badge
+- System tray icon with update count badge (beside icon, not overlaid)
 - Automatic periodic checking for updates
-- Support for both `apt` and `nala` package managers
 - Desktop notifications when new updates are available
+- Optional sound notifications for new updates
 - List view of all available updates
-- One-click access to update manager
-- Configurable check intervals
+- One-click access to update manager (Discover or Software Properties)
+- Configurable check intervals (5 minutes to 24 hours)
+- Auto-hide icon when no updates available (optional)
+- Toggle badge visibility
 - No sudo/root privileges required for checking
+- Fully compatible with Plasma 6
 
 ## Screenshots
 
@@ -69,14 +72,15 @@ Right-click on the widget and select "Configure" to access settings:
 - **Check Interval**: How often to check for updates (5 minutes to 24 hours)
 - **Check on Startup**: Automatically check for updates when the widget starts
 - **Show Notifications**: Display desktop notifications when updates are found
-- **Use Nala**: Prefer nala over apt if available on your system
+- **Auto-hide when empty**: Hide the widget icon when no updates are available
+- **Show Badge**: Display update count beside the icon (can be disabled for minimal look)
+- **Play Sound**: Play a sound notification when new updates are detected
 
 ## Requirements
 
 - KDE Plasma 6.0 or later
 - Ubuntu, Debian, or any Debian-based distribution
-- `apt` package manager (pre-installed on Ubuntu)
-- Optional: `nala` for enhanced package management
+- `apt` package manager (pre-installed on Ubuntu/Debian)
 
 ## How It Works
 
@@ -95,12 +99,7 @@ Clicking "Open Update Manager" will attempt to launch one of the following (in o
 2. GNOME Software Properties
 3. Falls back to showing a notification with manual update instructions
 
-You can then run updates using your preferred method:
-```bash
-sudo nala upgrade
-```
-
-or with apt:
+You can then run updates using apt:
 ```bash
 sudo apt update && sudo apt upgrade
 ```
@@ -119,7 +118,7 @@ This widget:
 
 1. Make sure your package lists are up to date:
 ```bash
-sudo nala update
+sudo apt update
 ```
 
 2. Verify updates are available:
@@ -133,7 +132,7 @@ apt list --upgradable
 
 Make sure you have the required dependencies:
 ```bash
-sudo nala install plasma-workspace plasma-framework
+sudo apt install plasma-workspace plasma-framework
 ```
 
 ### Widget disappeared after update
@@ -194,6 +193,25 @@ Created for the Ubuntu/KDE community.
 
 ## Changelog
 
+### Version 1.1.0
+- **Plasma 6 Compatibility**: Full migration to Plasma 6 APIs
+  - Replaced `PlasmaCore.DataSource` with `Plasma5Support.DataSource`
+  - Replaced `PlasmaCore.IconItem` with `Kirigami.Icon`
+  - Migrated from `Item` to `PlasmoidItem` root element
+  - Fixed `compactRepresentation` and `fullRepresentation` for Plasma 6
+- **New Features**:
+  - Auto-hide icon when no updates available
+  - Toggle badge visibility (show/hide update count)
+  - Sound notifications for new updates
+  - Better icon selection (update-high/update-none)
+- **UI Improvements**:
+  - Badge now appears beside icon instead of overlaid on top
+  - Better theme color integration
+  - Improved tooltip information
+- **Code Cleanup**:
+  - Removed nala support (provides no benefit for listing updates)
+  - Simplified codebase and configuration options
+
 ### Version 1.0.1
 - Updated for KDE Plasma 6 (Plasma 5 deprecated)
 - Modernized QML imports (removed version numbers)
@@ -203,7 +221,6 @@ Created for the Ubuntu/KDE community.
 
 ### Version 1.0.0
 - Initial release
-- Support for apt and nala package managers
 - System tray integration
 - Configurable check intervals
 - Desktop notifications
