@@ -16,10 +16,6 @@ PlasmoidItem {
     property bool checking: false
     property string lastCheck: ""
 
-    // Hide from panel when no updates and auto-hide is enabled
-    switchWidth: autoHideWhenEmpty && updateCount === 0 ? 0 : PlasmaCore.Units.iconSizes.small
-    switchHeight: autoHideWhenEmpty && updateCount === 0 ? 0 : PlasmaCore.Units.iconSizes.small
-
     Plasmoid.status: {
         if (autoHideWhenEmpty && updateCount === 0) {
             return PlasmaCore.Types.HiddenStatus
@@ -150,25 +146,31 @@ PlasmoidItem {
     }
 
     compactRepresentation: Item {
+        id: compactRoot
+
+        // Calculate preferred width: icon + optional badge
+        Layout.minimumWidth: icon.width + (showBadge && updateCount > 0 ? badgeLabel.width + PlasmaCore.Units.smallSpacing : 0)
+        Layout.preferredWidth: Layout.minimumWidth
+
         RowLayout {
-            anchors.fill: parent
+            anchors.centerIn: parent
             spacing: PlasmaCore.Units.smallSpacing
 
             Kirigami.Icon {
                 id: icon
-                Layout.fillHeight: true
-                Layout.preferredWidth: height
+                implicitWidth: PlasmaCore.Units.iconSizes.smallMedium
+                implicitHeight: PlasmaCore.Units.iconSizes.smallMedium
                 source: updateCount > 0 ? "update-high" : "update-none"
                 active: mouseArea.containsMouse
             }
 
             PlasmaComponents3.Label {
+                id: badgeLabel
                 visible: updateCount > 0 && showBadge
                 text: updateCount > 99 ? "99+" : updateCount
                 font.bold: true
-                font.pixelSize: PlasmaCore.Theme.defaultFont.pixelSize * 1.2
+                font.pixelSize: PlasmaCore.Theme.defaultFont.pixelSize * 1.1
                 color: PlasmaCore.Theme.textColor
-                Layout.alignment: Qt.AlignVCenter
             }
         }
 
