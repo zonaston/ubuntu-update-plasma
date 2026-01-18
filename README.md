@@ -22,8 +22,6 @@ The widget appears in the system tray and shows:
 
 ## Installation
 
-### For KDE Plasma 6 (Current)
-
 1. Clone this repository:
 ```bash
 git clone https://github.com/yourusername/ubuntu-update-plasma.git
@@ -46,39 +44,18 @@ killall plasmashell && kstart plasmashell
    - Search for "Ubuntu Updates Indicator"
    - Add it to your panel
 
-### For KDE Plasma 5 (Legacy)
-
-If you're still on Plasma 5, use `kpackagetool5` instead:
-```bash
-kpackagetool5 -t Plasma/Applet -i package
-```
-
 ### Updating the Widget
 
 If you already have the widget installed and want to update it:
-
-For Plasma 6:
 ```bash
 kpackagetool6 -t Plasma/Applet -u package
-```
-
-For Plasma 5:
-```bash
-kpackagetool5 -t Plasma/Applet -u package
 ```
 
 ## Uninstallation
 
 To remove the widget:
-
-For Plasma 6:
 ```bash
 kpackagetool6 -t Plasma/Applet -r org.kde.plasma.ubuntu-updates
-```
-
-For Plasma 5:
-```bash
-kpackagetool5 -t Plasma/Applet -r org.kde.plasma.ubuntu-updates
 ```
 
 ## Configuration
@@ -92,7 +69,7 @@ Right-click on the widget and select "Configure" to access settings:
 
 ## Requirements
 
-- KDE Plasma 6.0 or later (also compatible with Plasma 5.18+)
+- KDE Plasma 6.0 or later
 - Ubuntu, Debian, or any Debian-based distribution
 - `apt` package manager (pre-installed on Ubuntu)
 - Optional: `nala` for enhanced package management
@@ -215,11 +192,11 @@ Created for the Ubuntu/KDE community.
 ## Changelog
 
 ### Version 1.0.1
-- Updated for KDE Plasma 6 compatibility
+- Updated for KDE Plasma 6 (Plasma 5 deprecated)
 - Modernized QML imports (removed version numbers)
 - Fixed metadata format for Plasma 6
-- Updated installation instructions for both Plasma 5 and 6
-- Maintained backward compatibility with Plasma 5
+- Simplified installation instructions
+- Fixed installation path to use kpackagetool6 with -t flag
 
 ### Version 1.0.0
 - Initial release
