@@ -4,14 +4,16 @@ A KDE Plasma widget that monitors and displays available package updates for Ubu
 
 ## Features
 
-- System tray icon with update count badge
+- System tray icon with update count badge (beside icon, not overlaid)
 - Automatic periodic checking for updates
-- Support for both `apt` and `nala` package managers
 - Desktop notifications when new updates are available
+- Optional sound notifications for new updates
 - List view of all available updates
-- One-click access to update manager
-- Configurable check intervals
+- One-click access to update manager (Discover or Software Properties)
+- Configurable check intervals (5 minutes to 24 hours)
+- Toggle badge visibility
 - No sudo/root privileges required for checking
+- Fully compatible with Plasma 6
 
 ## Screenshots
 
@@ -22,17 +24,23 @@ The widget appears in the system tray and shows:
 
 ## Installation
 
-### Method 1: From Repository (Recommended)
+### Fresh Installation
 
 1. Clone this repository:
 ```bash
+cd ~
 git clone https://github.com/zonaston/ubuntu-update-plasma.git
 cd ubuntu-update-plasma
 ```
 
 2. Install the widget:
 ```bash
-kpackagetool6 -i package
+kpackagetool6 -t Plasma/Applet -i package
+```
+
+3. Restart Plasma Shell to load the widget:
+```bash
+killall plasmashell ; kstart plasmashell
 ```
 
 4. Add the widget to your panel:
@@ -41,23 +49,38 @@ kpackagetool6 -i package
    - Search for "Ubuntu Updates Indicator"
    - Add it to your panel
 
-### Method 2: Install from Local Package
-```bash
-kpackagetool6 -t Plasma/Applet -i package
-```
-
 ### Updating the Widget
 
 If you already have the widget installed and want to update it:
+
 ```bash
+# Remove old installation
+rm -rf ~/.local/share/plasma/plasmoids/org.kde.plasma.ubuntu-updates
+
+# Clean up and re-clone
+cd ~
+rm -rf ubuntu-update-plasma
+git clone https://github.com/zonaston/ubuntu-update-plasma.git
 cd ubuntu-update-plasma
-git pull
-kpackagetool6 -u package
+
+# Install fresh
+kpackagetool6 -t Plasma/Applet -i package
+
+# Restart Plasma Shell
+killall plasmashell ; kstart plasmashell
 ```
+
+**Note:** After updating, you may need to re-add the widget to your panel.
 
 ## Uninstallation
 
 To remove the widget:
+```bash
+rm -rf ~/.local/share/plasma/plasmoids/org.kde.plasma.ubuntu-updates
+killall plasmashell ; kstart plasmashell
+```
+
+Or using kpackagetool6:
 ```bash
 kpackagetool6 -r org.kde.plasma.ubuntu-updates
 ```
@@ -69,14 +92,14 @@ Right-click on the widget and select "Configure" to access settings:
 - **Check Interval**: How often to check for updates (5 minutes to 24 hours)
 - **Check on Startup**: Automatically check for updates when the widget starts
 - **Show Notifications**: Display desktop notifications when updates are found
-- **Use Nala**: Prefer nala over apt if available on your system
+- **Show Badge**: Display update count beside the icon (can be disabled for minimal look)
+- **Play Sound**: Play a sound notification when new updates are detected
 
 ## Requirements
 
 - KDE Plasma 6.0 or later
 - Ubuntu, Debian, or any Debian-based distribution
-- `apt` package manager (pre-installed on Ubuntu)
-- Optional: `nala` for enhanced package management
+- `apt` package manager (pre-installed on Ubuntu/Debian)
 
 ## How It Works
 
@@ -95,12 +118,7 @@ Clicking "Open Update Manager" will attempt to launch one of the following (in o
 2. GNOME Software Properties
 3. Falls back to showing a notification with manual update instructions
 
-You can then run updates using your preferred method:
-```bash
-sudo nala upgrade
-```
-
-or with apt:
+You can then run updates using apt:
 ```bash
 sudo apt update && sudo apt upgrade
 ```
@@ -119,7 +137,7 @@ This widget:
 
 1. Make sure your package lists are up to date:
 ```bash
-sudo nala update
+sudo apt update
 ```
 
 2. Verify updates are available:
@@ -133,7 +151,7 @@ apt list --upgradable
 
 Make sure you have the required dependencies:
 ```bash
-sudo nala install plasma-workspace plasma-framework
+sudo apt install plasma-workspace plasma-framework
 ```
 
 ### Widget disappeared after update
@@ -157,11 +175,25 @@ package/
         └── configGeneral.qml  # Configuration UI
 ```
 
-### Testing
+### Testing Changes
 
-To test changes without installing:
+To test changes during development:
+
+1. **Using plasmoidviewer (for quick testing without installation):**
 ```bash
 plasmoidviewer -a package
+```
+
+2. **Testing in actual panel (recommended):**
+```bash
+# Remove old version
+rm -rf ~/.local/share/plasma/plasmoids/org.kde.plasma.ubuntu-updates
+
+# Reinstall
+kpackagetool6 -t Plasma/Applet -i package
+
+# Restart Plasma Shell to reload
+killall plasmashell ; kstart plasmashell
 ```
 
 ### Debug Output
@@ -171,7 +203,7 @@ To see debug messages:
 journalctl -f | grep plasma
 ```
 
-Or run from terminal:
+Or run plasmoidviewer with debug output:
 ```bash
 QT_LOGGING_RULES="*.debug=true" plasmoidviewer -a package
 ```
@@ -194,6 +226,26 @@ Created for the Ubuntu/KDE community.
 
 ## Changelog
 
+### Version 1.1.0
+- **Plasma 6 Compatibility**: Full migration to Plasma 6 APIs
+  - Replaced `PlasmaCore.DataSource` with `Plasma5Support.DataSource`
+  - Replaced `PlasmaCore.IconItem` with `Kirigami.Icon`
+  - Replaced `PlasmaCore.Units` and `PlasmaCore.Theme` with `Kirigami` equivalents
+  - Migrated from `Item` to `PlasmoidItem` root element
+  - Fixed `compactRepresentation` and `fullRepresentation` for Plasma 6
+- **New Features**:
+  - Toggle badge visibility (show/hide update count)
+  - Sound notifications for new updates
+  - Better icon selection (update-high/update-none)
+- **UI Improvements**:
+  - Badge now appears beside icon instead of overlaid on top
+  - Better theme color integration
+  - Improved tooltip information
+  - Proper width calculation for badge to prevent icon overlap
+- **Code Cleanup**:
+  - Removed nala support (provides no benefit for listing updates)
+  - Simplified codebase and configuration options
+
 ### Version 1.0.1
 - Updated for KDE Plasma 6 (Plasma 5 deprecated)
 - Modernized QML imports (removed version numbers)
@@ -203,7 +255,6 @@ Created for the Ubuntu/KDE community.
 
 ### Version 1.0.0
 - Initial release
-- Support for apt and nala package managers
 - System tray integration
 - Configurable check intervals
 - Desktop notifications

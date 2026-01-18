@@ -7,9 +7,10 @@ Kirigami.FormLayout {
     id: generalPage
 
     property alias cfg_checkInterval: checkIntervalSpinBox.value
-    property alias cfg_useNala: useNalaCheckBox.checked
     property alias cfg_notifyOnUpdates: notifyCheckBox.checked
     property alias cfg_checkOnStartup: checkOnStartupCheckBox.checked
+    property alias cfg_showBadge: showBadgeCheckBox.checked
+    property alias cfg_playSound: playSoundCheckBox.checked
 
     QQC2.SpinBox {
         id: checkIntervalSpinBox
@@ -42,10 +43,20 @@ Kirigami.FormLayout {
         text: i18n("Show notification when updates are available")
     }
 
+    Item {
+        Kirigami.FormData.isSection: true
+    }
+
     QQC2.CheckBox {
-        id: useNalaCheckBox
-        Kirigami.FormData.label: i18n("Package Manager:")
-        text: i18n("Use nala instead of apt (if available)")
+        id: showBadgeCheckBox
+        Kirigami.FormData.label: i18n("Display:")
+        text: i18n("Show update count badge on icon")
+    }
+
+    QQC2.CheckBox {
+        id: playSoundCheckBox
+        Kirigami.FormData.label: i18n("Audio:")
+        text: i18n("Play sound notification for new updates")
     }
 
     Item {
@@ -54,7 +65,7 @@ Kirigami.FormLayout {
 
     QQC2.Label {
         Layout.fillWidth: true
-        text: i18n("This widget checks for Ubuntu package updates using apt or nala.\nThe widget displays the number of available updates in the system tray.")
+        text: i18n("This widget checks for Ubuntu package updates using apt.\nThe widget displays the number of available updates in the system tray.")
         wrapMode: Text.WordWrap
         font.pointSize: Kirigami.Theme.smallFont.pointSize
         opacity: 0.6

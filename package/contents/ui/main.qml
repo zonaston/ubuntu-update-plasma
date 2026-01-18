@@ -5,31 +5,30 @@ import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components as PlasmaComponents3
 import org.kde.plasma.extras as PlasmaExtras
 import org.kde.notification
+import org.kde.plasma.plasma5support as Plasma5Support
+import org.kde.kirigami as Kirigami
 
-Item {
+PlasmoidItem {
     id: root
 
     property int updateCount: 0
     property var updateList: []
     property bool checking: false
     property string lastCheck: ""
-    property string packageManager: "apt"
 
     Plasmoid.status: updateCount > 0 ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.PassiveStatus
-    Plasmoid.icon: updateCount > 0 ? "system-software-update" : "system-software-update"
-    Plasmoid.toolTipMainText: updateCount > 0 ? i18n("%1 updates available", updateCount) : i18n("System is up to date")
-    Plasmoid.toolTipSubText: lastCheck ? i18n("Last checked: %1", lastCheck) : i18n("Checking for updates...")
+    Plasmoid.icon: updateCount > 0 ? "update-high" : "update-none"
+    toolTipMainText: updateCount > 0 ? i18n("%1 updates available", updateCount) : i18n("System is up to date")
+    toolTipSubText: lastCheck ? i18n("Last checked: %1", lastCheck) : i18n("Checking for updates...")
 
     // Configuration properties
     property int checkInterval: plasmoid.configuration.checkInterval || 60
-    property bool useNala: plasmoid.configuration.useNala || false
     property bool notifyOnUpdates: plasmoid.configuration.notifyOnUpdates || true
     property bool checkOnStartup: plasmoid.configuration.checkOnStartup || true
+    property bool showBadge: plasmoid.configuration.showBadge !== undefined ? plasmoid.configuration.showBadge : true
+    property bool playSound: plasmoid.configuration.playSound || false
 
     Component.onCompleted: {
-        // Determine which package manager to use
-        detectPackageManager()
-
         if (checkOnStartup) {
             checkForUpdates()
         }
@@ -46,12 +45,12 @@ Item {
         onTriggered: checkForUpdates()
     }
 
-    PlasmaCore.DataSource {
+    Plasma5Support.DataSource {
         id: executable
         engine: "executable"
         connectedSources: []
 
-        onNewData: {
+        onNewData: function(sourceName, data) {
             var exitCode = data["exit code"]
             var stdout = data["stdout"]
             var stderr = data["stderr"]
@@ -60,27 +59,7 @@ Item {
 
             if (sourceName.indexOf("check-updates") !== -1) {
                 processUpdateCheck(stdout, exitCode)
-            } else if (sourceName.indexOf("detect-nala") !== -1) {
-                processPackageManagerDetection(stdout, exitCode)
             }
-        }
-    }
-
-    function detectPackageManager() {
-        if (useNala) {
-            executable.connectSource("detect-nala|which nala")
-        } else {
-            packageManager = "apt"
-        }
-    }
-
-    function processPackageManagerDetection(stdout, exitCode) {
-        if (exitCode === 0 && stdout.trim() !== "") {
-            packageManager = "nala"
-            console.log("Using nala as package manager")
-        } else {
-            packageManager = "apt"
-            console.log("Using apt as package manager")
         }
     }
 
@@ -149,29 +128,50 @@ Item {
             }
         ', root)
         notification.sendEvent()
+
+        // Play sound if enabled
+        if (playSound) {
+            executable.connectSource("play-sound|paplay /usr/share/sounds/freedesktop/stereo/message.oga || canberra-gtk-play -i message || true")
+        }
     }
 
     function openUpdateManager() {
         executable.connectSource("open-updater|discover --mode update || software-properties-gtk --open-tab=3 || (notify-send 'Ubuntu Updates' 'Please run: sudo apt update && sudo apt upgrade' -i system-software-update) &")
     }
 
-    Plasmoid.compactRepresentation: Item {
-        PlasmaCore.IconItem {
-            id: icon
+    compactRepresentation: Item {
+        id: compactRoot
+
+        Layout.minimumWidth: {
+            var baseWidth = Kirigami.Units.iconSizes.smallMedium
+            if (showBadge && updateCount > 0) {
+                // Add space for badge: estimated 2 digits + spacing
+                return baseWidth + Kirigami.Units.gridUnit * 1.5
+            }
+            return baseWidth
+        }
+        Layout.minimumHeight: Kirigami.Units.iconSizes.smallMedium
+
+        RowLayout {
             anchors.fill: parent
-            source: updateCount > 0 ? "update-high" : "update-none"
-            active: mouseArea.containsMouse
+            spacing: Kirigami.Units.smallSpacing
+
+            Kirigami.Icon {
+                id: icon
+                Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
+                Layout.preferredHeight: Kirigami.Units.iconSizes.smallMedium
+                source: updateCount > 0 ? "update-high" : "update-none"
+                active: mouseArea.containsMouse
+            }
 
             PlasmaComponents3.Label {
-                visible: updateCount > 0
+                id: badgeLabel
+                visible: updateCount > 0 && showBadge
                 text: updateCount > 99 ? "99+" : updateCount
-                anchors.centerIn: parent
-                anchors.verticalCenterOffset: 4
                 font.bold: true
-                font.pixelSize: parent.height * 0.4
-                color: "white"
-                style: Text.Outline
-                styleColor: "black"
+                font.pixelSize: Kirigami.Theme.defaultFont.pixelSize * 1.1
+                color: Kirigami.Theme.textColor
+                Layout.fillWidth: true
             }
         }
 
@@ -179,15 +179,15 @@ Item {
             id: mouseArea
             anchors.fill: parent
             hoverEnabled: true
-            onClicked: plasmoid.expanded = !plasmoid.expanded
+            onClicked: root.expanded = !root.expanded
         }
     }
 
-    Plasmoid.fullRepresentation: PlasmaComponents3.Page {
-        Layout.minimumWidth: PlasmaCore.Units.gridUnit * 20
-        Layout.minimumHeight: PlasmaCore.Units.gridUnit * 20
-        Layout.preferredWidth: PlasmaCore.Units.gridUnit * 25
-        Layout.preferredHeight: PlasmaCore.Units.gridUnit * 30
+    fullRepresentation: PlasmaComponents3.Page {
+        Layout.minimumWidth: Kirigami.Units.gridUnit * 20
+        Layout.minimumHeight: Kirigami.Units.gridUnit * 20
+        Layout.preferredWidth: Kirigami.Units.gridUnit * 25
+        Layout.preferredHeight: Kirigami.Units.gridUnit * 30
 
         header: PlasmaExtras.PlasmoidHeading {
             RowLayout {
@@ -218,7 +218,7 @@ Item {
 
         ColumnLayout {
             anchors.fill: parent
-            spacing: PlasmaCore.Units.smallSpacing
+            spacing: Kirigami.Units.smallSpacing
 
             PlasmaComponents3.ScrollView {
                 Layout.fillWidth: true
@@ -243,7 +243,7 @@ Item {
                             PlasmaComponents3.Label {
                                 Layout.fillWidth: true
                                 text: i18n("Version: %1", modelData.version)
-                                font.pointSize: PlasmaCore.Theme.smallestFont.pointSize
+                                font.pointSize: Kirigami.Theme.smallestFont.pointSize
                                 opacity: 0.6
                                 elide: Text.ElideRight
                             }
@@ -252,7 +252,7 @@ Item {
 
                     PlasmaExtras.PlaceholderMessage {
                         anchors.centerIn: parent
-                        width: parent.width - (PlasmaCore.Units.largeSpacing * 4)
+                        width: parent.width - (Kirigami.Units.largeSpacing * 4)
                         visible: updateList.length === 0 && !checking
                         iconName: "checkmark"
                         text: i18n("Your system is up to date!")
@@ -260,7 +260,7 @@ Item {
 
                     PlasmaExtras.PlaceholderMessage {
                         anchors.centerIn: parent
-                        width: parent.width - (PlasmaCore.Units.largeSpacing * 4)
+                        width: parent.width - (Kirigami.Units.largeSpacing * 4)
                         visible: checking
                         iconName: "system-search"
                         text: i18n("Checking for updates...")
@@ -274,7 +274,7 @@ Item {
                 PlasmaComponents3.Label {
                     Layout.fillWidth: true
                     text: lastCheck ? i18n("Last checked: %1", lastCheck) : ""
-                    font.pointSize: PlasmaCore.Theme.smallestFont.pointSize
+                    font.pointSize: Kirigami.Theme.smallestFont.pointSize
                     opacity: 0.6
                 }
 
@@ -284,7 +284,7 @@ Item {
                     icon.name: "system-software-update"
                     onClicked: {
                         openUpdateManager()
-                        plasmoid.expanded = false
+                        root.expanded = false
                     }
                 }
             }

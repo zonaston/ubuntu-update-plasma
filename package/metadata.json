@@ -13,7 +13,7 @@
         "Id": "org.kde.plasma.ubuntu-updates",
         "License": "GPL-3.0-or-later",
         "Name": "Ubuntu Updates Indicator",
-        "Version": "1.0.2",
+        "Version": "1.1.0",
         "Website": ""
     },
     "KPackageStructure": "Plasma/Applet",
