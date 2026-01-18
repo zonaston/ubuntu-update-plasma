@@ -1,0 +1,22 @@
+# KDE Plasma Widget artifacts
+*.plasmoid
+*.zip
+*.tar.gz
+
+# Backup files
+*~
+*.bak
+*.swp
+
+# IDE files
+.vscode/
+.idea/
+*.kate-swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing
+test/
+*.log
