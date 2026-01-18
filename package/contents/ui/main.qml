@@ -8,7 +8,7 @@ import org.kde.notification
 import org.kde.plasma.plasma5support as Plasma5Support
 import org.kde.kirigami as Kirigami
 
-Item {
+PlasmoidItem {
     id: root
 
     property int updateCount: 0
@@ -24,8 +24,8 @@ Item {
         return autoHideWhenEmpty ? PlasmaCore.Types.PassiveStatus : PlasmaCore.Types.ActiveStatus
     }
     Plasmoid.icon: updateCount > 0 ? "update-high" : "update-none"
-    Plasmoid.toolTipMainText: updateCount > 0 ? i18n("%1 updates available", updateCount) : i18n("System is up to date")
-    Plasmoid.toolTipSubText: lastCheck ? i18n("Last checked: %1", lastCheck) : i18n("Checking for updates...")
+    toolTipMainText: updateCount > 0 ? i18n("%1 updates available", updateCount) : i18n("System is up to date")
+    toolTipSubText: lastCheck ? i18n("Last checked: %1", lastCheck) : i18n("Checking for updates...")
 
     // Configuration properties
     property int checkInterval: plasmoid.configuration.checkInterval || 60
@@ -170,7 +170,7 @@ Item {
         executable.connectSource("open-updater|discover --mode update || software-properties-gtk --open-tab=3 || (notify-send 'Ubuntu Updates' 'Please run: sudo apt update && sudo apt upgrade' -i system-software-update) &")
     }
 
-    Plasmoid.compactRepresentation: Item {
+    compactRepresentation: Item {
         Kirigami.Icon {
             id: icon
             anchors.fill: parent
@@ -194,11 +194,11 @@ Item {
             id: mouseArea
             anchors.fill: parent
             hoverEnabled: true
-            onClicked: plasmoid.expanded = !plasmoid.expanded
+            onClicked: root.expanded = !root.expanded
         }
     }
 
-    Plasmoid.fullRepresentation: PlasmaComponents3.Page {
+    fullRepresentation: PlasmaComponents3.Page {
         Layout.minimumWidth: PlasmaCore.Units.gridUnit * 20
         Layout.minimumHeight: PlasmaCore.Units.gridUnit * 20
         Layout.preferredWidth: PlasmaCore.Units.gridUnit * 25
@@ -299,7 +299,7 @@ Item {
                     icon.name: "system-software-update"
                     onClicked: {
                         openUpdateManager()
-                        plasmoid.expanded = false
+                        root.expanded = false
                     }
                 }
             }
