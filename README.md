@@ -22,7 +22,7 @@ The widget appears in the system tray and shows:
 
 ## Installation
 
-### Method 1: Manual Installation (Recommended)
+### For KDE Plasma 6 (Current)
 
 1. Clone this repository:
 ```bash
@@ -32,17 +32,23 @@ cd ubuntu-update-plasma
 
 2. Install the widget:
 ```bash
-kpackagetool5 -i package
+kpackagetool6 -t Plasma/Applet -i package
 ```
 
-3. Add the widget to your panel:
+3. Restart Plasma Shell to load the widget:
+```bash
+killall plasmashell && kstart plasmashell
+```
+
+4. Add the widget to your panel:
    - Right-click on your panel
    - Select "Add Widgets"
    - Search for "Ubuntu Updates Indicator"
    - Add it to your panel
 
-### Method 2: Install from Local Package
+### For KDE Plasma 5 (Legacy)
 
+If you're still on Plasma 5, use `kpackagetool5` instead:
 ```bash
 kpackagetool5 -t Plasma/Applet -i package
 ```
@@ -51,16 +57,28 @@ kpackagetool5 -t Plasma/Applet -i package
 
 If you already have the widget installed and want to update it:
 
+For Plasma 6:
 ```bash
-kpackagetool5 -u package
+kpackagetool6 -t Plasma/Applet -u package
+```
+
+For Plasma 5:
+```bash
+kpackagetool5 -t Plasma/Applet -u package
 ```
 
 ## Uninstallation
 
 To remove the widget:
 
+For Plasma 6:
 ```bash
-kpackagetool5 -r org.kde.plasma.ubuntu-updates
+kpackagetool6 -t Plasma/Applet -r org.kde.plasma.ubuntu-updates
+```
+
+For Plasma 5:
+```bash
+kpackagetool5 -t Plasma/Applet -r org.kde.plasma.ubuntu-updates
 ```
 
 ## Configuration
@@ -74,7 +92,7 @@ Right-click on the widget and select "Configure" to access settings:
 
 ## Requirements
 
-- KDE Plasma 5.18 or later
+- KDE Plasma 6.0 or later (also compatible with Plasma 5.18+)
 - Ubuntu, Debian, or any Debian-based distribution
 - `apt` package manager (pre-installed on Ubuntu)
 - Optional: `nala` for enhanced package management
@@ -195,6 +213,13 @@ This project is licensed under the GNU General Public License v3.0 or later - se
 Created for the Ubuntu/KDE community.
 
 ## Changelog
+
+### Version 1.0.1
+- Updated for KDE Plasma 6 compatibility
+- Modernized QML imports (removed version numbers)
+- Fixed metadata format for Plasma 6
+- Updated installation instructions for both Plasma 5 and 6
+- Maintained backward compatibility with Plasma 5
 
 ### Version 1.0.0
 - Initial release
