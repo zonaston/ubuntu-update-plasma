@@ -16,14 +16,7 @@ PlasmoidItem {
     property bool checking: false
     property string lastCheck: ""
 
-    Plasmoid.status: {
-        if (autoHideWhenEmpty && updateCount === 0) {
-            console.log("Ubuntu Updates: Hiding widget (updateCount=0, autoHide=true)")
-            return PlasmaCore.Types.HiddenStatus
-        }
-        console.log("Ubuntu Updates: Showing widget (updateCount=" + updateCount + ", autoHide=" + autoHideWhenEmpty + ")")
-        return updateCount > 0 ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.PassiveStatus
-    }
+    Plasmoid.status: updateCount > 0 ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.PassiveStatus
     Plasmoid.icon: updateCount > 0 ? "update-high" : "update-none"
     toolTipMainText: updateCount > 0 ? i18n("%1 updates available", updateCount) : i18n("System is up to date")
     toolTipSubText: lastCheck ? i18n("Last checked: %1", lastCheck) : i18n("Checking for updates...")
@@ -115,8 +108,6 @@ PlasmoidItem {
         updateCount = count
         updateList = updates
 
-        console.log("Ubuntu Updates: Found " + count + " updates")
-
         var now = new Date()
         lastCheck = Qt.formatDateTime(now, "hh:mm")
 
@@ -152,7 +143,13 @@ PlasmoidItem {
     compactRepresentation: Item {
         id: compactRoot
 
+        // Hide by setting size to 0 when auto-hide is enabled and no updates
+        visible: !(autoHideWhenEmpty && updateCount === 0)
+
         Layout.minimumWidth: {
+            if (autoHideWhenEmpty && updateCount === 0) {
+                return 0
+            }
             var baseWidth = Kirigami.Units.iconSizes.smallMedium
             if (showBadge && updateCount > 0) {
                 // Add space for badge: estimated 2 digits + spacing
@@ -160,7 +157,12 @@ PlasmoidItem {
             }
             return baseWidth
         }
-        Layout.minimumHeight: Kirigami.Units.iconSizes.smallMedium
+        Layout.minimumHeight: {
+            if (autoHideWhenEmpty && updateCount === 0) {
+                return 0
+            }
+            return Kirigami.Units.iconSizes.smallMedium
+        }
 
         RowLayout {
             anchors.fill: parent
