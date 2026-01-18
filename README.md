@@ -4,13 +4,13 @@ A KDE Plasma widget that monitors and displays available package updates for Ubu
 
 ## Features
 
-- System tray icon with update count badge (beside icon, not overlaid)
+- System tray icon with update count badge 
 - Automatic periodic checking for updates
 - Desktop notifications when new updates are available
 - Optional sound notifications for new updates
 - List view of all available updates
-- One-click access to update manager (Discover or Software Properties)
-- Configurable check intervals (5 minutes to 24 hours)
+- One-click access to update manager 
+- Configurable check intervals
 - Toggle badge visibility
 - No sudo/root privileges required for checking
 - Fully compatible with Plasma 6
@@ -158,56 +158,6 @@ sudo apt install plasma-workspace plasma-framework
 
 Plasma sometimes removes widgets during updates. Simply re-add it from the widget menu.
 
-## Development
-
-### Building from Source
-
-The widget is written in QML and doesn't require compilation. The structure is:
-```
-package/
-├── metadata.json           # Widget metadata
-└── contents/
-    ├── config/
-    │   ├── main.xml       # Configuration schema
-    │   └── config.qml     # Configuration structure
-    └── ui/
-        ├── main.qml       # Main widget UI
-        └── configGeneral.qml  # Configuration UI
-```
-
-### Testing Changes
-
-To test changes during development:
-
-1. **Using plasmoidviewer (for quick testing without installation):**
-```bash
-plasmoidviewer -a package
-```
-
-2. **Testing in actual panel (recommended):**
-```bash
-# Remove old version
-rm -rf ~/.local/share/plasma/plasmoids/org.kde.plasma.ubuntu-updates
-
-# Reinstall
-kpackagetool6 -t Plasma/Applet -i package
-
-# Restart Plasma Shell to reload
-killall plasmashell ; kstart plasmashell
-```
-
-### Debug Output
-
-To see debug messages:
-```bash
-journalctl -f | grep plasma
-```
-
-Or run plasmoidviewer with debug output:
-```bash
-QT_LOGGING_RULES="*.debug=true" plasmoidviewer -a package
-```
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
@@ -219,43 +169,3 @@ This widget is inspired by the [GNOME Shell Debian Updates Indicator](https://gi
 ## License
 
 This project is licensed under the GNU General Public License v3.0 or later - see the [LICENSE](LICENSE) file for details.
-
-## Authors
-
-Created for the Ubuntu/KDE community.
-
-## Changelog
-
-### Version 1.1.0
-- **Plasma 6 Compatibility**: Full migration to Plasma 6 APIs
-  - Replaced `PlasmaCore.DataSource` with `Plasma5Support.DataSource`
-  - Replaced `PlasmaCore.IconItem` with `Kirigami.Icon`
-  - Replaced `PlasmaCore.Units` and `PlasmaCore.Theme` with `Kirigami` equivalents
-  - Migrated from `Item` to `PlasmoidItem` root element
-  - Fixed `compactRepresentation` and `fullRepresentation` for Plasma 6
-- **New Features**:
-  - Toggle badge visibility (show/hide update count)
-  - Sound notifications for new updates
-  - Better icon selection (update-high/update-none)
-- **UI Improvements**:
-  - Badge now appears beside icon instead of overlaid on top
-  - Better theme color integration
-  - Improved tooltip information
-  - Proper width calculation for badge to prevent icon overlap
-- **Code Cleanup**:
-  - Removed nala support (provides no benefit for listing updates)
-  - Simplified codebase and configuration options
-
-### Version 1.0.1
-- Updated for KDE Plasma 6 (Plasma 5 deprecated)
-- Modernized QML imports (removed version numbers)
-- Fixed metadata format for Plasma 6
-- Simplified installation instructions
-- Fixed installation path to use kpackagetool6 with -t flag
-
-### Version 1.0.0
-- Initial release
-- System tray integration
-- Configurable check intervals
-- Desktop notifications
-- Update list view
