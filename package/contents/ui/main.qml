@@ -116,18 +116,17 @@ PlasmoidItem {
         }
     }
 
+    Notification {
+        id: updateNotification
+        componentName: "plasma_applet_org.kde.plasma.ubuntu-updates"
+        eventId: "updates-available"
+        iconName: "system-software-update"
+    }
+
     function showNotification() {
-        var notification = Qt.createQmlObject('
-            import org.kde.notification
-            Notification {
-                componentName: "plasma_applet_org.kde.plasma.ubuntu-updates"
-                eventId: "updates-available"
-                title: "' + i18n("Ubuntu Updates Available") + '"
-                text: "' + i18np("1 package update is available", "%1 package updates are available", updateCount) + '"
-                iconName: "system-software-update"
-            }
-        ', root)
-        notification.sendEvent()
+        updateNotification.title = i18n("Ubuntu Updates Available")
+        updateNotification.text = i18np("1 package update is available", "%1 package updates are available", updateCount)
+        updateNotification.sendEvent()
 
         // Play sound if enabled
         if (playSound) {
