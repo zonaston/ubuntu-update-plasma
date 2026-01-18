@@ -5,6 +5,7 @@ import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components as PlasmaComponents3
 import org.kde.plasma.extras as PlasmaExtras
 import org.kde.notification
+import org.kde.plasma.plasma5support as Plasma5Support
 
 Item {
     id: root
@@ -15,8 +16,13 @@ Item {
     property string lastCheck: ""
     property string packageManager: "apt"
 
-    Plasmoid.status: updateCount > 0 ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.PassiveStatus
-    Plasmoid.icon: updateCount > 0 ? "system-software-update" : "system-software-update"
+    Plasmoid.status: {
+        if (updateCount > 0) {
+            return PlasmaCore.Types.ActiveStatus
+        }
+        return autoHideWhenEmpty ? PlasmaCore.Types.PassiveStatus : PlasmaCore.Types.ActiveStatus
+    }
+    Plasmoid.icon: updateCount > 0 ? "update-high" : "update-none"
     Plasmoid.toolTipMainText: updateCount > 0 ? i18n("%1 updates available", updateCount) : i18n("System is up to date")
     Plasmoid.toolTipSubText: lastCheck ? i18n("Last checked: %1", lastCheck) : i18n("Checking for updates...")
 
@@ -25,6 +31,9 @@ Item {
     property bool useNala: plasmoid.configuration.useNala || false
     property bool notifyOnUpdates: plasmoid.configuration.notifyOnUpdates || true
     property bool checkOnStartup: plasmoid.configuration.checkOnStartup || true
+    property bool autoHideWhenEmpty: plasmoid.configuration.autoHideWhenEmpty || false
+    property bool showBadge: plasmoid.configuration.showBadge !== undefined ? plasmoid.configuration.showBadge : true
+    property bool playSound: plasmoid.configuration.playSound || false
 
     Component.onCompleted: {
         // Determine which package manager to use
@@ -46,12 +55,12 @@ Item {
         onTriggered: checkForUpdates()
     }
 
-    PlasmaCore.DataSource {
+    Plasma5Support.DataSource {
         id: executable
         engine: "executable"
         connectedSources: []
 
-        onNewData: {
+        onNewData: function(sourceName, data) {
             var exitCode = data["exit code"]
             var stdout = data["stdout"]
             var stderr = data["stderr"]
@@ -149,6 +158,11 @@ Item {
             }
         ', root)
         notification.sendEvent()
+
+        // Play sound if enabled
+        if (playSound) {
+            executable.connectSource("play-sound|paplay /usr/share/sounds/freedesktop/stereo/message.oga || canberra-gtk-play -i message || true")
+        }
     }
 
     function openUpdateManager() {
@@ -163,7 +177,7 @@ Item {
             active: mouseArea.containsMouse
 
             PlasmaComponents3.Label {
-                visible: updateCount > 0
+                visible: updateCount > 0 && showBadge
                 text: updateCount > 99 ? "99+" : updateCount
                 anchors.centerIn: parent
                 anchors.verticalCenterOffset: 4
