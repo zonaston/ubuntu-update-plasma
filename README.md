@@ -22,20 +22,17 @@ The widget appears in the system tray and shows:
 
 ## Installation
 
+### Method 1: From Repository (Recommended)
+
 1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/ubuntu-update-plasma.git
+git clone https://github.com/zonaston/ubuntu-update-plasma.git
 cd ubuntu-update-plasma
 ```
 
 2. Install the widget:
 ```bash
-kpackagetool6 -t Plasma/Applet -i package
-```
-
-3. Restart Plasma Shell to load the widget:
-```bash
-killall plasmashell && kstart plasmashell
+kpackagetool6 -i package
 ```
 
 4. Add the widget to your panel:
@@ -44,18 +41,25 @@ killall plasmashell && kstart plasmashell
    - Search for "Ubuntu Updates Indicator"
    - Add it to your panel
 
+### Method 2: Install from Local Package
+```bash
+kpackagetool6 -t Plasma/Applet -i package
+```
+
 ### Updating the Widget
 
 If you already have the widget installed and want to update it:
 ```bash
-kpackagetool6 -t Plasma/Applet -u package
+cd ubuntu-update-plasma
+git pull
+kpackagetool6 -u package
 ```
 
 ## Uninstallation
 
 To remove the widget:
 ```bash
-kpackagetool6 -t Plasma/Applet -r org.kde.plasma.ubuntu-updates
+kpackagetool6 -r org.kde.plasma.ubuntu-updates
 ```
 
 ## Configuration
@@ -93,12 +97,12 @@ Clicking "Open Update Manager" will attempt to launch one of the following (in o
 
 You can then run updates using your preferred method:
 ```bash
-sudo apt update && sudo apt upgrade
+sudo nala upgrade
 ```
 
-or with nala:
+or with apt:
 ```bash
-sudo nala upgrade
+sudo apt update && sudo apt upgrade
 ```
 
 ## Privacy
@@ -115,7 +119,7 @@ This widget:
 
 1. Make sure your package lists are up to date:
 ```bash
-sudo apt update
+sudo nala update
 ```
 
 2. Verify updates are available:
@@ -129,7 +133,7 @@ apt list --upgradable
 
 Make sure you have the required dependencies:
 ```bash
-sudo apt install plasma-workspace plasma-framework
+sudo nala install plasma-workspace plasma-framework
 ```
 
 ### Widget disappeared after update
@@ -141,7 +145,6 @@ Plasma sometimes removes widgets during updates. Simply re-add it from the widge
 ### Building from Source
 
 The widget is written in QML and doesn't require compilation. The structure is:
-
 ```
 package/
 ├── metadata.json           # Widget metadata
