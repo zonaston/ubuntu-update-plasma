@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+    <kcfgfile name=""/>
+
+    <group name="General">
+        <entry name="checkInterval" type="Int">
+            <default>60</default>
+            <label>Check for updates every X minutes</label>
+        </entry>
+        <entry name="useNala" type="Bool">
+            <default>false</default>
+            <label>Use nala instead of apt (if available)</label>
+        </entry>
+        <entry name="notifyOnUpdates" type="Bool">
+            <default>true</default>
+            <label>Show notification when updates are available</label>
+        </entry>
+        <entry name="checkOnStartup" type="Bool">
+            <default>true</default>
+            <label>Check for updates on startup</label>
+        </entry>
+    </group>
+</kcfg>

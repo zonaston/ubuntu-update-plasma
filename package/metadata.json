@@ -1,0 +1,29 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "",
+                "Name": "Ubuntu Update Indicator"
+            }
+        ],
+        "Category": "System Information",
+        "Description": "Monitor Ubuntu package updates from apt/nala",
+        "EnabledByDefault": true,
+        "Icon": "system-software-update",
+        "Id": "org.kde.plasma.ubuntu-updates",
+        "License": "GPL-3.0+",
+        "Name": "Ubuntu Updates Indicator",
+        "ServiceTypes": [
+            "Plasma/Applet"
+        ],
+        "Version": "1.0.0",
+        "Website": ""
+    },
+    "X-Plasma-API": "declarativeappletscript",
+    "X-Plasma-MainScript": "ui/main.qml",
+    "X-Plasma-Provides": [
+        "org.kde.plasma.ubuntu-updates"
+    ],
+    "X-Plasma-NotificationArea": "true",
+    "X-Plasma-NotificationAreaCategory": "SystemServices"
+}
