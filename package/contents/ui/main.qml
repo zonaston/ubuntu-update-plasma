@@ -6,6 +6,7 @@ import org.kde.plasma.components as PlasmaComponents3
 import org.kde.plasma.extras as PlasmaExtras
 import org.kde.notification
 import org.kde.plasma.plasma5support as Plasma5Support
+import org.kde.kirigami as Kirigami
 
 Item {
     id: root
@@ -170,7 +171,7 @@ Item {
     }
 
     Plasmoid.compactRepresentation: Item {
-        PlasmaCore.IconItem {
+        Kirigami.Icon {
             id: icon
             anchors.fill: parent
             source: updateCount > 0 ? "update-high" : "update-none"
