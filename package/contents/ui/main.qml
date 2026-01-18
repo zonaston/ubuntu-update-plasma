@@ -153,23 +153,23 @@ PlasmoidItem {
         id: compactRoot
 
         Layout.minimumWidth: {
-            var baseWidth = PlasmaCore.Units.iconSizes.smallMedium
+            var baseWidth = Kirigami.Units.iconSizes.smallMedium
             if (showBadge && updateCount > 0) {
                 // Add space for badge: estimated 2 digits + spacing
-                return baseWidth + PlasmaCore.Units.gridUnit * 1.5
+                return baseWidth + Kirigami.Units.gridUnit * 1.5
             }
             return baseWidth
         }
-        Layout.minimumHeight: PlasmaCore.Units.iconSizes.smallMedium
+        Layout.minimumHeight: Kirigami.Units.iconSizes.smallMedium
 
         RowLayout {
             anchors.fill: parent
-            spacing: PlasmaCore.Units.smallSpacing
+            spacing: Kirigami.Units.smallSpacing
 
             Kirigami.Icon {
                 id: icon
-                Layout.preferredWidth: PlasmaCore.Units.iconSizes.smallMedium
-                Layout.preferredHeight: PlasmaCore.Units.iconSizes.smallMedium
+                Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
+                Layout.preferredHeight: Kirigami.Units.iconSizes.smallMedium
                 source: updateCount > 0 ? "update-high" : "update-none"
                 active: mouseArea.containsMouse
             }
@@ -179,8 +179,8 @@ PlasmoidItem {
                 visible: updateCount > 0 && showBadge
                 text: updateCount > 99 ? "99+" : updateCount
                 font.bold: true
-                font.pixelSize: PlasmaCore.Theme.defaultFont.pixelSize * 1.1
-                color: PlasmaCore.Theme.textColor
+                font.pixelSize: Kirigami.Theme.defaultFont.pixelSize * 1.1
+                color: Kirigami.Theme.textColor
                 Layout.fillWidth: true
             }
         }
@@ -194,10 +194,10 @@ PlasmoidItem {
     }
 
     fullRepresentation: PlasmaComponents3.Page {
-        Layout.minimumWidth: PlasmaCore.Units.gridUnit * 20
-        Layout.minimumHeight: PlasmaCore.Units.gridUnit * 20
-        Layout.preferredWidth: PlasmaCore.Units.gridUnit * 25
-        Layout.preferredHeight: PlasmaCore.Units.gridUnit * 30
+        Layout.minimumWidth: Kirigami.Units.gridUnit * 20
+        Layout.minimumHeight: Kirigami.Units.gridUnit * 20
+        Layout.preferredWidth: Kirigami.Units.gridUnit * 25
+        Layout.preferredHeight: Kirigami.Units.gridUnit * 30
 
         header: PlasmaExtras.PlasmoidHeading {
             RowLayout {
@@ -228,7 +228,7 @@ PlasmoidItem {
 
         ColumnLayout {
             anchors.fill: parent
-            spacing: PlasmaCore.Units.smallSpacing
+            spacing: Kirigami.Units.smallSpacing
 
             PlasmaComponents3.ScrollView {
                 Layout.fillWidth: true
@@ -253,7 +253,7 @@ PlasmoidItem {
                             PlasmaComponents3.Label {
                                 Layout.fillWidth: true
                                 text: i18n("Version: %1", modelData.version)
-                                font.pointSize: PlasmaCore.Theme.smallestFont.pointSize
+                                font.pointSize: Kirigami.Theme.smallestFont.pointSize
                                 opacity: 0.6
                                 elide: Text.ElideRight
                             }
@@ -262,7 +262,7 @@ PlasmoidItem {
 
                     PlasmaExtras.PlaceholderMessage {
                         anchors.centerIn: parent
-                        width: parent.width - (PlasmaCore.Units.largeSpacing * 4)
+                        width: parent.width - (Kirigami.Units.largeSpacing * 4)
                         visible: updateList.length === 0 && !checking
                         iconName: "checkmark"
                         text: i18n("Your system is up to date!")
@@ -270,7 +270,7 @@ PlasmoidItem {
 
                     PlasmaExtras.PlaceholderMessage {
                         anchors.centerIn: parent
-                        width: parent.width - (PlasmaCore.Units.largeSpacing * 4)
+                        width: parent.width - (Kirigami.Units.largeSpacing * 4)
                         visible: checking
                         iconName: "system-search"
                         text: i18n("Checking for updates...")
@@ -284,7 +284,7 @@ PlasmoidItem {
                 PlasmaComponents3.Label {
                     Layout.fillWidth: true
                     text: lastCheck ? i18n("Last checked: %1", lastCheck) : ""
-                    font.pointSize: PlasmaCore.Theme.smallestFont.pointSize
+                    font.pointSize: Kirigami.Theme.smallestFont.pointSize
                     opacity: 0.6
                 }
 
