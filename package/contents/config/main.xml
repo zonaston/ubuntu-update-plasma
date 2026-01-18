@@ -10,10 +10,6 @@
             <default>60</default>
             <label>Check for updates every X minutes</label>
         </entry>
-        <entry name="useNala" type="Bool">
-            <default>false</default>
-            <label>Use nala instead of apt (if available)</label>
-        </entry>
         <entry name="notifyOnUpdates" type="Bool">
             <default>true</default>
             <label>Show notification when updates are available</label>

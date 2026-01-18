@@ -15,7 +15,6 @@ PlasmoidItem {
     property var updateList: []
     property bool checking: false
     property string lastCheck: ""
-    property string packageManager: "apt"
 
     // Hide from panel when no updates and auto-hide is enabled
     switchWidth: autoHideWhenEmpty && updateCount === 0 ? 0 : PlasmaCore.Units.iconSizes.small
@@ -33,7 +32,6 @@ PlasmoidItem {
 
     // Configuration properties
     property int checkInterval: plasmoid.configuration.checkInterval || 60
-    property bool useNala: plasmoid.configuration.useNala || false
     property bool notifyOnUpdates: plasmoid.configuration.notifyOnUpdates || true
     property bool checkOnStartup: plasmoid.configuration.checkOnStartup || true
     property bool autoHideWhenEmpty: plasmoid.configuration.autoHideWhenEmpty || false
@@ -41,9 +39,6 @@ PlasmoidItem {
     property bool playSound: plasmoid.configuration.playSound || false
 
     Component.onCompleted: {
-        // Determine which package manager to use
-        detectPackageManager()
-
         if (checkOnStartup) {
             checkForUpdates()
         }
@@ -74,27 +69,7 @@ PlasmoidItem {
 
             if (sourceName.indexOf("check-updates") !== -1) {
                 processUpdateCheck(stdout, exitCode)
-            } else if (sourceName.indexOf("detect-nala") !== -1) {
-                processPackageManagerDetection(stdout, exitCode)
             }
-        }
-    }
-
-    function detectPackageManager() {
-        if (useNala) {
-            executable.connectSource("detect-nala|which nala")
-        } else {
-            packageManager = "apt"
-        }
-    }
-
-    function processPackageManagerDetection(stdout, exitCode) {
-        if (exitCode === 0 && stdout.trim() !== "") {
-            packageManager = "nala"
-            console.log("Using nala as package manager")
-        } else {
-            packageManager = "apt"
-            console.log("Using apt as package manager")
         }
     }
 
@@ -105,9 +80,7 @@ PlasmoidItem {
         updateList = []
 
         // Command to check for updates without requiring sudo
-        // Use nala or apt based on user preference and availability
-        var listCmd = packageManager === "nala" ? "nala list --upgradable" : "apt list --upgradable"
-        var cmd = "check-updates|LANG=C " + listCmd + " 2>/dev/null | grep -v 'Listing' | grep '/'  || true"
+        var cmd = "check-updates|LANG=C apt list --upgradable 2>/dev/null | grep -v 'Listing' | grep '/'  || true"
 
         executable.connectSource(cmd)
     }
