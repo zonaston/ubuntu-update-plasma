@@ -18,8 +18,10 @@ PlasmoidItem {
 
     Plasmoid.status: {
         if (autoHideWhenEmpty && updateCount === 0) {
+            console.log("Ubuntu Updates: Hiding widget (updateCount=0, autoHide=true)")
             return PlasmaCore.Types.HiddenStatus
         }
+        console.log("Ubuntu Updates: Showing widget (updateCount=" + updateCount + ", autoHide=" + autoHideWhenEmpty + ")")
         return updateCount > 0 ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.PassiveStatus
     }
     Plasmoid.icon: updateCount > 0 ? "update-high" : "update-none"
@@ -113,6 +115,8 @@ PlasmoidItem {
         updateCount = count
         updateList = updates
 
+        console.log("Ubuntu Updates: Found " + count + " updates")
+
         var now = new Date()
         lastCheck = Qt.formatDateTime(now, "hh:mm")
 
@@ -148,18 +152,24 @@ PlasmoidItem {
     compactRepresentation: Item {
         id: compactRoot
 
-        // Calculate preferred width: icon + optional badge
-        Layout.minimumWidth: icon.width + (showBadge && updateCount > 0 ? badgeLabel.width + PlasmaCore.Units.smallSpacing : 0)
-        Layout.preferredWidth: Layout.minimumWidth
+        Layout.minimumWidth: {
+            var baseWidth = PlasmaCore.Units.iconSizes.smallMedium
+            if (showBadge && updateCount > 0) {
+                // Add space for badge: estimated 2 digits + spacing
+                return baseWidth + PlasmaCore.Units.gridUnit * 1.5
+            }
+            return baseWidth
+        }
+        Layout.minimumHeight: PlasmaCore.Units.iconSizes.smallMedium
 
         RowLayout {
-            anchors.centerIn: parent
+            anchors.fill: parent
             spacing: PlasmaCore.Units.smallSpacing
 
             Kirigami.Icon {
                 id: icon
-                implicitWidth: PlasmaCore.Units.iconSizes.smallMedium
-                implicitHeight: PlasmaCore.Units.iconSizes.smallMedium
+                Layout.preferredWidth: PlasmaCore.Units.iconSizes.smallMedium
+                Layout.preferredHeight: PlasmaCore.Units.iconSizes.smallMedium
                 source: updateCount > 0 ? "update-high" : "update-none"
                 active: mouseArea.containsMouse
             }
@@ -171,6 +181,7 @@ PlasmoidItem {
                 font.bold: true
                 font.pixelSize: PlasmaCore.Theme.defaultFont.pixelSize * 1.1
                 color: PlasmaCore.Theme.textColor
+                Layout.fillWidth: true
             }
         }
 
