@@ -17,6 +17,9 @@ PlasmoidItem {
     property string lastCheck: ""
     property int aptUpdatesCount: 0
     property int flatpakUpdatesCount: 0
+    property bool aptCheckComplete: false
+    property bool flatpakCheckComplete: false
+    property bool isManualCheck: false
 
     Plasmoid.status: updateCount > 0 ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.PassiveStatus
     Plasmoid.icon: updateCount > 0 ? "update-high" : "update-none"
@@ -67,13 +70,16 @@ PlasmoidItem {
         }
     }
 
-    function checkForUpdates() {
+    function checkForUpdates(manual) {
         if (checking) return
 
         checking = true
+        isManualCheck = manual || false
         updateList = []
         aptUpdatesCount = 0
         flatpakUpdatesCount = 0
+        aptCheckComplete = false
+        flatpakCheckComplete = false
 
         // Command to check for apt updates without requiring sudo
         var aptCmd = "check-apt-updates|LANG=C apt list --upgradable 2>/dev/null | grep -v 'Listing' | grep '/'  || true"
@@ -111,6 +117,7 @@ PlasmoidItem {
 
         aptUpdatesCount = aptUpdates.length
         updateList = updateList.concat(aptUpdates)
+        aptCheckComplete = true
         finalizeUpdateCheck()
     }
 
@@ -144,15 +151,15 @@ PlasmoidItem {
 
         flatpakUpdatesCount = flatpakUpdates.length
         updateList = updateList.concat(flatpakUpdates)
+        flatpakCheckComplete = true
         finalizeUpdateCheck()
     }
 
     function finalizeUpdateCheck() {
         // Only finalize when both apt and flatpak checks are done
-        // We check if we have processed both by seeing if both counts are set (>= 0)
-        if (!checking) return
+        if (!aptCheckComplete || !flatpakCheckComplete) return
 
-        // Both checks should have completed by now
+        // Both checks have completed
         var previousCount = updateCount
         updateCount = aptUpdatesCount + flatpakUpdatesCount
 
@@ -161,8 +168,8 @@ PlasmoidItem {
         var now = new Date()
         lastCheck = Qt.formatDateTime(now, "hh:mm")
 
-        // Show notification if new updates are found
-        if (notifyOnUpdates && updateCount > 0 && updateCount > previousCount) {
+        // Show notification only on automatic checks, not manual refreshes
+        if (notifyOnUpdates && !isManualCheck && updateCount > 0 && updateCount > previousCount) {
             showNotification()
         }
     }
@@ -255,7 +262,7 @@ PlasmoidItem {
                     icon.name: "view-refresh"
                     text: i18n("Refresh")
                     enabled: !checking
-                    onClicked: checkForUpdates()
+                    onClicked: checkForUpdates(true)
 
                     PlasmaComponents3.BusyIndicator {
                         anchors.centerIn: parent
