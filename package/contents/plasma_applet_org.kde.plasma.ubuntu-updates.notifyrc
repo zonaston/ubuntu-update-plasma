@@ -1,0 +1,9 @@
+[Global]
+IconName=system-software-update
+Comment=Ubuntu Updates Indicator
+Name=Ubuntu Updates Indicator
+
+[Event/updates-available]
+Name=Updates Available
+Comment=Package updates are available for your system
+Action=Popup|Sound
