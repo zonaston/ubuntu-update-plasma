@@ -15,6 +15,8 @@ PlasmoidItem {
     property var updateList: []
     property bool checking: false
     property string lastCheck: ""
+    property int aptUpdatesCount: 0
+    property int flatpakUpdatesCount: 0
 
     Plasmoid.status: updateCount > 0 ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.PassiveStatus
     Plasmoid.icon: updateCount > 0 ? "update-high" : "update-none"
@@ -57,8 +59,10 @@ PlasmoidItem {
 
             disconnectSource(sourceName)
 
-            if (sourceName.indexOf("check-updates") !== -1) {
-                processUpdateCheck(stdout, exitCode)
+            if (sourceName.indexOf("check-apt-updates") !== -1) {
+                processAptUpdateCheck(stdout, exitCode)
+            } else if (sourceName.indexOf("check-flatpak-updates") !== -1) {
+                processFlatpakUpdateCheck(stdout, exitCode)
             }
         }
     }
@@ -68,19 +72,21 @@ PlasmoidItem {
 
         checking = true
         updateList = []
+        aptUpdatesCount = 0
+        flatpakUpdatesCount = 0
 
-        // Command to check for updates without requiring sudo
-        var cmd = "check-updates|LANG=C apt list --upgradable 2>/dev/null | grep -v 'Listing' | grep '/'  || true"
+        // Command to check for apt updates without requiring sudo
+        var aptCmd = "check-apt-updates|LANG=C apt list --upgradable 2>/dev/null | grep -v 'Listing' | grep '/'  || true"
+        executable.connectSource(aptCmd)
 
-        executable.connectSource(cmd)
+        // Command to check for flatpak updates
+        var flatpakCmd = "check-flatpak-updates|flatpak remote-ls --updates 2>/dev/null || true"
+        executable.connectSource(flatpakCmd)
     }
 
-    function processUpdateCheck(stdout, exitCode) {
-        checking = false
-
+    function processAptUpdateCheck(stdout, exitCode) {
         var lines = stdout.trim().split('\n')
-        var updates = []
-        var count = 0
+        var aptUpdates = []
 
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i].trim()
@@ -93,19 +99,64 @@ PlasmoidItem {
                     var packageName = pkgInfo[0]
                     var newVersion = parts[1]
 
-                    updates.push({
+                    aptUpdates.push({
                         name: packageName,
                         version: newVersion,
+                        source: "APT",
                         fullLine: line
                     })
-                    count++
                 }
             }
         }
 
+        aptUpdatesCount = aptUpdates.length
+        updateList = updateList.concat(aptUpdates)
+        finalizeUpdateCheck()
+    }
+
+    function processFlatpakUpdateCheck(stdout, exitCode) {
+        var lines = stdout.trim().split('\n')
+        var flatpakUpdates = []
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim()
+            if (line && line !== "") {
+                // Parse flatpak remote-ls --updates output
+                // Format: Name	Application ID	Version	Branch	Remote	Installation
+                var parts = line.split('\t')
+                if (parts.length >= 3) {
+                    var appName = parts[0]
+                    var appId = parts.length >= 2 ? parts[1] : ""
+                    var version = parts.length >= 3 ? parts[2] : ""
+
+                    // Use application name if available, otherwise use ID
+                    var displayName = appName || appId
+
+                    flatpakUpdates.push({
+                        name: displayName,
+                        version: version,
+                        source: "Flatpak",
+                        fullLine: line
+                    })
+                }
+            }
+        }
+
+        flatpakUpdatesCount = flatpakUpdates.length
+        updateList = updateList.concat(flatpakUpdates)
+        finalizeUpdateCheck()
+    }
+
+    function finalizeUpdateCheck() {
+        // Only finalize when both apt and flatpak checks are done
+        // We check if we have processed both by seeing if both counts are set (>= 0)
+        if (!checking) return
+
+        // Both checks should have completed by now
         var previousCount = updateCount
-        updateCount = count
-        updateList = updates
+        updateCount = aptUpdatesCount + flatpakUpdatesCount
+
+        checking = false
 
         var now = new Date()
         lastCheck = Qt.formatDateTime(now, "hh:mm")
@@ -232,11 +283,27 @@ PlasmoidItem {
                         width: updateListView.width
 
                         contentItem: ColumnLayout {
-                            PlasmaComponents3.Label {
+                            RowLayout {
                                 Layout.fillWidth: true
-                                text: modelData.name
-                                font.weight: Font.Bold
-                                elide: Text.ElideRight
+                                spacing: Kirigami.Units.smallSpacing
+
+                                PlasmaComponents3.Label {
+                                    Layout.fillWidth: true
+                                    text: modelData.name
+                                    font.weight: Font.Bold
+                                    elide: Text.ElideRight
+                                }
+
+                                PlasmaComponents3.Label {
+                                    text: modelData.source || "APT"
+                                    font.pointSize: Kirigami.Theme.smallestFont.pointSize
+                                    padding: Kirigami.Units.smallSpacing
+                                    color: Kirigami.Theme.highlightedTextColor
+                                    background: Rectangle {
+                                        color: Kirigami.Theme.highlightColor
+                                        radius: 3
+                                    }
+                                }
                             }
 
                             PlasmaComponents3.Label {

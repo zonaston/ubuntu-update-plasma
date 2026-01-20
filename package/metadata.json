@@ -7,13 +7,13 @@
             }
         ],
         "Category": "System Information",
-        "Description": "Monitor Ubuntu package updates from apt/nala",
+        "Description": "Monitor Ubuntu package updates from apt/nala and Flatpak applications",
         "EnabledByDefault": true,
         "Icon": "system-software-update",
         "Id": "org.kde.plasma.ubuntu-updates",
         "License": "GPL-3.0-or-later",
         "Name": "Ubuntu Updates Indicator",
-        "Version": "1.1.0",
+        "Version": "1.2.0",
         "Website": ""
     },
     "KPackageStructure": "Plasma/Applet",

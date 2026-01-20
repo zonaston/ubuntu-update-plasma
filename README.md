@@ -4,12 +4,13 @@ A KDE Plasma widget that monitors and displays available package updates for Ubu
 
 ## Features
 
-- System tray icon with update count badge 
+- System tray icon with update count badge
 - Automatic periodic checking for updates
-- Desktop notifications when new updates are available
+- **Desktop notifications when new updates are available** (now working with Plasma 6!)
 - Optional sound notifications for new updates
 - List view of all available updates
-- One-click access to update manager 
+- **Flatpak application updates support** (in addition to APT packages)
+- One-click access to update manager
 - Configurable check intervals
 - Toggle badge visibility
 - No sudo/root privileges required for checking
@@ -103,13 +104,17 @@ Right-click on the widget and select "Configure" to access settings:
 
 ## How It Works
 
-The widget uses the `apt list --upgradable` command to check for available package updates. This command does not require root privileges and provides a reliable list of packages that can be updated.
+The widget checks for updates from multiple sources:
+- Uses `apt list --upgradable` to check for system package updates
+- Uses `flatpak remote-ls --updates` to check for Flatpak application updates
+- Neither command requires root privileges
 
 The checking process:
-1. Runs `apt list --upgradable` in the background
-2. Parses the output to extract package names and versions
-3. Updates the system tray icon with the count
-4. Displays the list in the popup when clicked
+1. Runs both commands in the background
+2. Parses the output to extract package/app names and versions
+3. Updates the system tray icon with the total count
+4. Displays the combined list in the popup when clicked
+5. Shows the source (APT/Flatpak) for each update
 
 ## Opening the Update Manager
 
