@@ -17,8 +17,10 @@ PlasmoidItem {
     property string lastCheck: ""
     property int aptUpdatesCount: 0
     property int flatpakUpdatesCount: 0
+    property int plasmaUpdatesCount: 0
     property bool aptCheckComplete: false
     property bool flatpakCheckComplete: false
+    property bool plasmaCheckComplete: false
     property bool isManualCheck: false
 
     Plasmoid.status: updateCount > 0 ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.PassiveStatus
@@ -66,6 +68,8 @@ PlasmoidItem {
                 processAptUpdateCheck(stdout, exitCode)
             } else if (sourceName.indexOf("check-flatpak-updates") !== -1) {
                 processFlatpakUpdateCheck(stdout, exitCode)
+            } else if (sourceName.indexOf("check-plasma-updates") !== -1) {
+                processPlasmaUpdateCheck(stdout, exitCode)
             }
         }
     }
@@ -78,8 +82,10 @@ PlasmoidItem {
         updateList = []
         aptUpdatesCount = 0
         flatpakUpdatesCount = 0
+        plasmaUpdatesCount = 0
         aptCheckComplete = false
         flatpakCheckComplete = false
+        plasmaCheckComplete = false
 
         // Command to check for apt updates without requiring sudo
         var aptCmd = "check-apt-updates|LANG=C apt list --upgradable 2>/dev/null | grep -v 'Listing' | grep '/'  || true"
@@ -88,6 +94,11 @@ PlasmoidItem {
         // Command to check for flatpak updates
         var flatpakCmd = "check-flatpak-updates|flatpak remote-ls --updates 2>/dev/null || true"
         executable.connectSource(flatpakCmd)
+
+        // Command to check for Plasma/KDE widget and addon updates via PackageKit
+        // This catches Plasma widgets and other updates that Discover would show
+        var plasmaCmd = "check-plasma-updates|pkcon get-updates --plain 2>/dev/null | grep -E '^(plasma|kde|kwin|kf[0-9])' || true"
+        executable.connectSource(plasmaCmd)
     }
 
     function processAptUpdateCheck(stdout, exitCode) {
@@ -155,13 +166,44 @@ PlasmoidItem {
         finalizeUpdateCheck()
     }
 
-    function finalizeUpdateCheck() {
-        // Only finalize when both apt and flatpak checks are done
-        if (!aptCheckComplete || !flatpakCheckComplete) return
+    function processPlasmaUpdateCheck(stdout, exitCode) {
+        var lines = stdout.trim().split('\n')
+        var plasmaUpdates = []
 
-        // Both checks have completed
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim()
+            if (line && line !== "") {
+                // Parse pkcon get-updates output
+                // Format varies, but typically: package-name	version	arch	repo
+                // We filter for plasma/kde/kwin/kf* packages
+                var parts = line.split(/\s+/)
+                if (parts.length >= 2) {
+                    var packageName = parts[0]
+                    var version = parts[1]
+
+                    plasmaUpdates.push({
+                        name: packageName,
+                        version: version,
+                        source: "Plasma",
+                        fullLine: line
+                    })
+                }
+            }
+        }
+
+        plasmaUpdatesCount = plasmaUpdates.length
+        updateList = updateList.concat(plasmaUpdates)
+        plasmaCheckComplete = true
+        finalizeUpdateCheck()
+    }
+
+    function finalizeUpdateCheck() {
+        // Only finalize when all checks (apt, flatpak, and plasma) are done
+        if (!aptCheckComplete || !flatpakCheckComplete || !plasmaCheckComplete) return
+
+        // All checks have completed
         var previousCount = updateCount
-        updateCount = aptUpdatesCount + flatpakUpdatesCount
+        updateCount = aptUpdatesCount + flatpakUpdatesCount + plasmaUpdatesCount
 
         checking = false
 
@@ -194,7 +236,16 @@ PlasmoidItem {
     }
 
     function openUpdateManager() {
-        executable.connectSource("open-updater|discover --mode update || software-properties-gtk --open-tab=3 || (notify-send 'Ubuntu Updates' 'Please run: sudo apt update && sudo apt upgrade' -i system-software-update) &")
+        // Try to open Discover to the updates page
+        // If Discover is not installed, show notification and try fallbacks
+        var cmd = "open-updater|if command -v discover >/dev/null 2>&1; then " +
+                  "discover --mode update; " +
+                  "else " +
+                  "notify-send 'Ubuntu Updates' 'Discover not found' -i system-software-update && " +
+                  "(software-properties-gtk --open-tab=3 || " +
+                  "notify-send 'Ubuntu Updates' 'Please run: sudo apt update && sudo apt upgrade' -i system-software-update); " +
+                  "fi &"
+        executable.connectSource(cmd)
     }
 
     compactRepresentation: Item {
