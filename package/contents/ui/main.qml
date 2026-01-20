@@ -168,7 +168,8 @@ PlasmoidItem {
         var now = new Date()
         lastCheck = Qt.formatDateTime(now, "hh:mm")
 
-        // Show notification only on automatic checks, not manual refreshes
+        // Show notification only on automatic checks when new updates are found
+        // Manual refreshes don't trigger notifications (user initiated action)
         if (notifyOnUpdates && !isManualCheck && updateCount > 0 && updateCount > previousCount) {
             showNotification()
         }
